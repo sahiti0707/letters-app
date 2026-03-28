@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="manifest" href="/manifest.json">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Letters</title>
@@ -415,28 +416,14 @@
     }
   });
 
-  // ── PWA: inline manifest via blob ───────────────────────
-  <link rel="manifest" href="/manifest.json">
-<script>
+  } // end of finally
+
+  });
+
+  // PWA
   if ('serviceWorker' in navigator)
     navigator.serviceWorker.register('/sw.js');
-</script>
 
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = URL.createObjectURL(blob);
-  document.head.appendChild(link);
-
-  // ── Service Worker (for PWA installability) ─────────────
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      self.addEventListener('install', e => self.skipWaiting());
-      self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-    `;
-    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
-  }
 </script>
 </body>
 </html>
