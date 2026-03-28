@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters</title>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Letters">
+
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║                    EMAILJS SETUP                         ║
+  ║                                                          ║
+  ║  1. Create account at https://emailjs.com                ║
+  ║  2. Add an Email Service (Gmail, Outlook, etc.)          ║
+  ║     → Dashboard → Email Services → Add New Service       ║
+  ║     → Copy the Service ID                                ║
+  ║  3. Create an Email Template                             ║
+  ║     → Email Templates → Create New Template             ║
+  ║     → Use these template variables:                      ║
+  ║         {{from_email}}  — sender's email                 ║
+  ║         {{to_email}}    — recipient's email              ║
+  ║         {{subject}}     — email subject                  ║
+  ║         {{message}}     — letter content                 ║
+  ║     → Copy the Template ID                               ║
+  ║  4. Get your Public Key                                  ║
+  ║     → Account → General → Public Key                     ║
+  ║  5. Fill in the CONFIG object below                      ║
+  ╚══════════════════════════════════════════════════════════╝
+
+  PWA SETUP (for Android install prompt):
+  1. Serve this file over HTTPS (e.g. GitHub Pages, Netlify, Vercel)
+  2. The manifest and service worker are injected automatically below
+  3. On Android Chrome, you'll get "Add to Home Screen" prompt
+-->
+
+<script>
+  const CONFIG = {
+    publicKey:  "31DoUc2IHgGwHO9oI",
+    serviceId:  "service_mov5tvd",
+    templateId: "template_kwk8dvq",
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #0a0a0a;
+    --fg-muted: #555555;
+    --border: #d0d0d0;
+    --border-focus: #0a0a0a;
+    --input-bg: #fafafa;
+    --btn-bg: #0a0a0a;
+    --btn-fg: #ffffff;
+    --btn-hover: #333333;
+    --rule: #e0e0e0;
+    --shadow: rgba(0,0,0,0.06);
+    --toast-bg: #0a0a0a;
+    --toast-fg: #ffffff;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-theme="dark"] {
+    --bg: #080808;
+    --fg: #f0f0f0;
+    --fg-muted: #888888;
+    --border: #2a2a2a;
+    --border-focus: #f0f0f0;
+    --input-bg: #111111;
+    --btn-bg: #f0f0f0;
+    --btn-fg: #080808;
+    --btn-hover: #cccccc;
+    --rule: #1e1e1e;
+    --shadow: rgba(0,0,0,0.4);
+    --toast-bg: #f0f0f0;
+    --toast-fg: #080808;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    min-height: 100dvh;
+    transition: background var(--transition), color var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1.5rem 4rem;
+  }
+
+  header {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 2.5rem 0 2rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 3rem;
+    transition: border-color var(--transition);
+  }
+
+  .wordmark {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    text-decoration: none;
+    user-select: none;
+  }
+
+  .wordmark em {
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .toggle-theme {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-family: 'EB Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.85rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all var(--transition);
+  }
+
+  .toggle-theme:hover {
+    border-color: var(--fg);
+    color: var(--fg);
+  }
+
+  main {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .dateline {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--fg-muted);
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.01em;
+  }
+
+  .field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 540px) {
+    .field-group { grid-template-columns: 1fr; }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .field.full { margin-bottom: 1.25rem; }
+
+  label {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    transition: color var(--transition);
+  }
+
+  input, textarea {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--fg);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1rem;
+    padding: 0.65rem 0.85rem;
+    width: 100%;
+    outline: none;
+    transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    -webkit-appearance: none;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--shadow);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 280px;
+    line-height: 1.8;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 2rem 0;
+    transition: border-color var(--transition);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .send-btn {
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: none;
+    border-radius: 2px;
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 2.2rem;
+    cursor: pointer;
+    transition: background var(--transition), transform 0.1s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .send-btn:hover:not(:disabled) { background: var(--btn-hover); }
+  .send-btn:active:not(:disabled) { transform: scale(0.98); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .send-btn .spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--btn-fg);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+
+  .send-btn.loading .spinner { display: inline-block; }
+  .send-btn.loading .btn-text { opacity: 0.6; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .char-count {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(calc(100% + 2rem));
+    background: var(--toast-bg);
+    color: var(--toast-fg);
+    font-family: 'EB Garamond', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="wordmark">Let<em>ters</em></span>
+  <button class="toggle-theme" id="themeBtn" aria-label="Toggle theme">Light</button>
+</header>
+
+<main>
+  <p class="dateline" id="dateline"></p>
+
+  <div class="field-group">
+    <div class="field">
+      <label for="fromEmail">From</label>
+      <input type="email" id="fromEmail" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="toEmail">To</label>
+      <input type="email" id="toEmail" placeholder="them@email.com">
+    </div>
+  </div>
+
+  <div class="field full">
+    <label for="subject">Subject</label>
+    <input type="text" id="subject" placeholder="Re: the thing we never finished talking about">
+  </div>
+
+  <div class="field full">
+    <label for="message">Letter</label>
+    <textarea id="message" placeholder="Dear ___,&#10;&#10;I've been meaning to write…"></textarea>
+  </div>
+
+  <hr class="divider">
+
+  <div class="actions">
+    <button class="send-btn" id="sendBtn">
+      <span class="spinner"></span>
+      <span class="btn-text">Send Letter</span>
+    </button>
+    <span class="char-count" id="charCount">0 characters</span>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Init EmailJS ────────────────────────────────────────
+  emailjs.init(CONFIG.publicKey);
+
+  // ── Theme ───────────────────────────────────────────────
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
+  const saved = localStorage.getItem('letters-theme') ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  function setTheme(t) {
+    root.setAttribute('data-theme', t);
+    themeBtn.textContent = t === 'dark' ? 'Light' : 'Dark';
+    localStorage.setItem('letters-theme', t);
+  }
+
+  setTheme(saved);
+  themeBtn.addEventListener('click', () =>
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+  // ── Dateline ────────────────────────────────────────────
+  document.getElementById('dateline').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // ── Char count ──────────────────────────────────────────
+  const msgEl = document.getElementById('message');
+  const countEl = document.getElementById('charCount');
+  msgEl.addEventListener('input', () => {
+    const n = msgEl.value.length;
+    countEl.textContent = `${n.toLocaleString()} character${n !== 1 ? 's' : ''}`;
+  });
+
+  // ── Toast ───────────────────────────────────────────────
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+  }
+
+  // ── Send ────────────────────────────────────────────────
+  const sendBtn = document.getElementById('sendBtn');
+
+  sendBtn.addEventListener('click', async () => {
+    const from_email = document.getElementById('fromEmail').value.trim();
+    const to_email   = document.getElementById('toEmail').value.trim();
+    const subject    = document.getElementById('subject').value.trim();
+    const message    = msgEl.value.trim();
+
+    if (!from_email || !to_email || !subject || !message) {
+      showToast('All fields are required.');
+      return;
+    }
+
+    sendBtn.disabled = true;
+    sendBtn.classList.add('loading');
+
+    try {
+      await emailjs.send(CONFIG.serviceId, CONFIG.templateId, {
+        from_email, to_email, subject, message
+      });
+      showToast('Letter sent.');
+      document.getElementById('toEmail').value = '';
+      document.getElementById('subject').value = '';
+      msgEl.value = '';
+      countEl.textContent = '0 characters';
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to send. Check your EmailJS config.');
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.classList.remove('loading');
+    }
+  });
+
+  // ── PWA: inline manifest via blob ───────────────────────
+  <link rel="manifest" href="/manifest.json">
+<script>
+  if ('serviceWorker' in navigator)
+    navigator.serviceWorker.register('/sw.js');
+</script>
+
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+
+  // ── Service Worker (for PWA installability) ─────────────
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      self.addEventListener('install', e => self.skipWaiting());
+      self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+    `;
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+  }
+</script>
+</body>
+</html>
