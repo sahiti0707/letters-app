@@ -1,5 +1,5 @@
 const CACHE = "letters-v1";
-const ASSETS = ["/", "/index.html"];
+const ASSETS = ["/letters-app/", "/letters-app/index.html"];
 
 self.addEventListener("install", e =>
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)))
