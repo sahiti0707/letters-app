@@ -2,7 +2,7 @@
   "name": "Letters",
   "short_name": "Letters",
   "description": "Send letters via email",
-  "start_url": "/",
+  "start_url": "/letters-app/",
   "display": "standalone",
   "background_color": "#080808",
   "theme_color": "#000000",
